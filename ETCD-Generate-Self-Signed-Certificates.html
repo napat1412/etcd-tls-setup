@@ -1,0 +1,1038 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-site-verification" content="oBEColYSCRykfsZuRhgr85IbvF-04_BfZlaxOGyFCJg"/>
+<meta name="description" content="CoreOS provides Container Linux, Tectonic for Kubernetes and the Quay image registry; key components to secure, simplify and automatically update your container infrastructure.">
+
+<meta itemprop="name" content="CoreOS">
+<meta itemprop="description" content="CoreOS provides Container Linux, Tectonic for Kubernetes and the Quay image registry; key components to secure, simplify and automatically update your container infrastructure.">
+<meta itemprop="image" content="http://coreos.com/assets/images/brand/CoreOS-twitter-embed.jpg">
+
+<meta property="og:title" content="CoreOS"/>
+<meta property="og:image" content="http://coreos.com/assets/images/brand/CoreOS-twitter-embed.jpg"/>
+<meta property="og:description" content="CoreOS provides Container Linux, Tectonic for Kubernetes and the Quay image registry; key components to secure, simplify and automatically update your container infrastructure."/>
+<title>Generate Self Signed Certificates</title>
+
+<link href="/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+<link href="/assets/css/pygments-manni.css" rel="stylesheet">
+
+<meta name="ac-discovery" content="coreos.com/rkt/builder https://github.com/rkt/rkt-builder/releases/download/v{version}/rkt-builder-{version}-{os}-{arch}.{ext}">
+<meta name="ac-discovery-pubkeys" content="coreos.com/rkt/builder https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg">
+
+<meta name="ac-discovery" content="coreos.com/rkt/stage1-coreos https://github.com/rkt/rkt/releases/download/v{version}/stage1-coreos-{version}-{os}-{arch}.{ext}">
+<meta name="ac-discovery-pubkeys" content="coreos.com/rkt/stage1-coreos https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg">
+<meta name="ac-discovery" content="coreos.com/rkt/stage1-fly https://github.com/rkt/rkt/releases/download/v{version}/stage1-fly-{version}-{os}-{arch}.{ext}">
+<meta name="ac-discovery-pubkeys" content="coreos.com/rkt/stage1-fly https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg">
+<meta name="ac-discovery" content="coreos.com/rkt/stage1-kvm https://github.com/rkt/rkt/releases/download/v{version}/stage1-kvm-{version}-{os}-{arch}.{ext}">
+<meta name="ac-discovery-pubkeys" content="coreos.com/rkt/stage1-kvm https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg">
+
+<meta name="ac-discovery" content="coreos.com/etcd https://github.com/coreos/etcd/releases/download/{version}/etcd-{version}-{os}-{arch}.{ext}">
+<meta name="ac-discovery-pubkeys" content="coreos.com/etcd https://coreos.com/dist/pubkeys/aci-pubkeys.gpg">
+<meta name="ac-discovery-pubkeys" content="coreos.com/etcd https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg">
+<meta name="ac-discovery" content="coreos.com/bootcfg https://github.com/coreos/coreos-baremetal/releases/download/{version}/bootcfg-{version}-{os}-{arch}.{ext}">
+<meta name="ac-discovery-pubkeys" content="coreos.com/bootcfg https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg">
+<meta name="ac-discovery" content="coreos.com/dnsmasq https://github.com/coreos/coreos-baremetal/releases/download/{version}/dnsmasq-{version}-{os}-{arch}.{ext}">
+<meta name="ac-discovery-pubkeys" content="coreos.com/dnsmasq https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg">
+<meta name="ac-discovery" content="coreos.com/dex https://github.com/coreos/dex/releases/download/{version}/dex-{version}-{os}-{arch}.{ext}">
+<meta name="ac-discovery-pubkeys" content="coreos.com/dex https://coreos.com/dist/pubkeys/app-signing-pubkey.gpg">
+
+<link href="/assets/css/coreos.css?1505249767235079862" rel="stylesheet">
+
+<link href="/assets/css/syntax-highlight.css" rel="stylesheet">
+
+<!--[if lt IE 9]>
+  <script src="/assets/js/html5shiv.js"></script>
+  <script src="/assets/js/respond.min.js"></script>
+<![endif]-->
+<link href="https://coreos.com/atom.xml" type="application/atom+xml" rel="alternate" title="CoreOS Blog ATOM Feed">
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/ico/apple-touch-icon-144-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/assets/ico/apple-touch-icon-114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/assets/ico/apple-touch-icon-72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="/assets/ico/apple-touch-icon-57-precomposed.png">
+<link rel="shortcut icon" href="/assets/ico/favicon.png">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,400italic,600,700,900" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,500,600,700" rel="stylesheet" type="text/css">
+
+<link rel="search" type="application/opensearchdescription+xml" title="CoreOS" href="/opensearch.xml"/>
+<script>
+  !function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on"];analytics.factory=function(t){return function(){var e=Array.prototype.slice.call(arguments);e.unshift(t);analytics.push(e);return analytics}};for(var t=0;t<analytics.methods.length;t++){var e=analytics.methods[t];analytics[e]=analytics.factory(e)}analytics.load=function(t){var e=document.createElement("script");e.type="text/javascript";e.async=!0;e.src=("https:"===document.location.protocol?"https://":"http://")+"cdn.segment.com/analytics.js/v1/"+t+"/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};analytics.SNIPPET_VERSION="4.0.0";
+  analytics.load("svmdstzeokv7YiVRznN8RHaF5JlxLPNy");
+  analytics.page();
+  }}();
+</script>
+
+<script type="text/javascript">
+(function() {
+  var didInit = false;
+  function initMunchkin() {
+    if(didInit === false) {
+      didInit = true;
+      Munchkin.init('231-DAD-511');
+    }
+  }
+  var s = document.createElement('script');
+  s.type = 'text/javascript';
+  s.async = true;
+  s.src = '//munchkin.marketo.net/munchkin-beta.js';
+  s.onreadystatechange = function() {
+    if (this.readyState == 'complete' || this.readyState == 'loaded') {
+      initMunchkin();
+    }
+  };
+  s.onload = initMunchkin;
+  document.getElementsByTagName('head')[0].appendChild(s);
+})();
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  // Single property tracking
+  // Uses the default tracker (more below)
+  ga('create', 'UA-42684979-1', 'coreos.com');
+  ga('require', 'displayfeatures');
+  ga('send', 'pageview');
+
+</script>
+
+<script type="text/javascript">
+  /* <![CDATA[ */
+  goog_snippet_vars = function() {
+    var w = window;
+    w.google_conversion_id = 961645061;
+    w.google_conversion_label = "Ok-BCMTIwnQQhZTGygM";
+    w.google_remarketing_only = false;
+  }
+  // DO NOT CHANGE THE CODE BELOW.
+  goog_report_conversion = function(url) {
+    goog_snippet_vars();
+    window.google_conversion_format = "3";
+    var opt = new Object();
+    opt.onload_callback = function() {
+    if (typeof(url) != 'undefined') {
+      window.location = url;
+    }
+  }
+  var conv_handler = window['google_trackConversion'];
+  if (typeof(conv_handler) == 'function') {
+    conv_handler(opt);
+  }
+}
+/* ]]> */
+</script>
+<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion_async.js">
+</script>
+
+</head>
+<body data-spy="scroll" data-target=".coreos-docs-sidebar" class="co-m-main-nav-full co-p-header-large">
+
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-MMX2DX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MMX2DX');</script>
+
+<div class=" github-fork-ribbon-wrapper right hidden-xs">
+<div class="github-fork-ribbon">
+<a href="https://github.com/coreos/docs/blob/master/os/generate-self-signed-certificates.md">Fork me on GitHub</a>
+</div>
+</div>
+<div class="co-m-main-nav co-p-background-hexagons_blue co-p-header-masthead co-p-docs-header">
+<div class="co-p-docs-masthead">
+<div class="co-p-header-masthead co-p-header-masthead-twolevel co-p-background-hexagons">
+
+<div class="co-m-global-nav">
+<div class="co-m-global-nav">
+</div>
+</div>
+
+<div class="co-m-main-nav">
+<div class="navbar navbar-static-top coreos-nav co-m-main-nav-container" role="navigation">
+<div class="container">
+<div class="navbar-header">
+<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".coreos-nav-collapse">
+<span class="icon-bar co-m-main-nav-hamburger"></span>
+<span class="icon-bar co-m-main-nav-hamburger"></span>
+<span class="icon-bar co-m-main-nav-hamburger"></span>
+</button>
+<a href="/" class="navbar-brand co-m-main-nav-brand" data-category="Main Navigation" data-event="Logo">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" preserveAspectRatio="xMidYMin" height="30px" viewBox="24.5 41.5 744 223" enable-background="new 24.5 41.5 744 223" xml:space="preserve">
+<defs>
+<filter id="black-glow">
+<feColorMatrix type="matrix" values="0 0 0 0   0
+                                 0 0 0 0   0
+                                 0 0 0 0   0
+                                 0 0 0 0.5 0"/>
+<feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+<feMerge>
+<feMergeNode in="coloredBlur"/>
+<feMergeNode in="SourceGraphic"/>
+</feMerge>
+ </filter>
+</defs>
+<path class="co-p-main-nav-brand-mantle" fill="#F1606D" d="M136.168,55.389c-17.283,0-31.941,27.645-37.235,66.069c-0.169,1.236-0.333,2.487-0.478,3.746
+          c-0.723,6.047-1.213,12.335-1.458,18.808c-0.117,2.962-0.175,5.956-0.175,8.988c0,3.029,0.058,6.029,0.175,8.985
+          c0.245,6.472,0.735,12.764,1.458,18.811c8.104,1.049,16.769,1.761,25.807,2.099c3.907,0.146,7.872,0.233,11.907,0.233
+          c4.023,0,8-0.088,11.895-0.233c9.049-0.338,17.708-1.05,25.819-2.099c0.892-0.114,1.77-0.239,2.659-0.368
+          c33.754-4.74,57.235-15.232,57.235-27.428C233.776,99.088,190.071,55.389,136.168,55.389z"/>
+<path class="co-p-main-nav-brand-core" fill="#FFFFFF" d="M176.541,125.569c-0.979-1.428-2.029-2.796-3.148-4.11c-8.956-10.557-22.297-17.265-37.224-17.265
+          c-4.839,0-9.148,7.407-11.907,18.909c-1.096,4.586-1.947,9.819-2.495,15.498c-0.432,4.551-0.665,9.391-0.665,14.399
+          s0.233,9.849,0.665,14.396c4.554,0.432,9.387,0.664,14.402,0.664c5.009,0,9.842-0.232,14.396-0.664
+          c10.011-0.95,18.653-2.875,24.775-5.411c6.046-2.501,9.624-5.615,9.624-8.985C184.963,142.832,181.858,133.388,176.541,125.569z"/>
+<g class="co-p-main-nav-brand-text-bold">
+<path fill="#231F20" d="M344.891,100.053c12.585,0,22.816,6.138,29.262,13.062l-10.064,11.326
+            c-5.353-5.192-11.175-8.495-19.041-8.495c-16.839,0-28.953,14.16-28.953,37.291c0,23.448,11.169,37.608,28.32,37.608
+            c9.128,0,15.895-3.775,21.717-10.228l10.067,11.169c-8.335,9.598-19.038,14.95-32.099,14.95c-26.119,0-46.731-18.88-46.731-53.025
+            C297.37,120.036,318.454,100.053,344.891,100.053z"/>
+<path fill="#231F20" d="M416.961,125.701c19.352,0,36.822,14.793,36.822,40.597c0,25.647-17.471,40.439-36.822,40.439
+            c-19.197,0-36.66-14.792-36.66-40.439C380.301,140.494,397.764,125.701,416.961,125.701z M416.961,191.945
+            c11.33,0,18.25-10.228,18.25-25.647c0-15.577-6.92-25.804-18.25-25.804s-18.094,10.227-18.094,25.804
+            C398.867,181.717,405.631,191.945,416.961,191.945z"/>
+<path fill="#231F20" d="M459.771,127.589h14.943l1.26,13.688h0.629c5.506-10.07,13.691-15.577,21.871-15.577
+            c3.938,0,6.455,0.472,8.811,1.574l-3.148,15.734c-2.67-0.784-4.717-1.257-8.018-1.257c-6.139,0-13.539,4.245-18.256,15.893v47.203
+            h-18.092L459.771,127.589L459.771,127.589z"/>
+<path fill="#231F20" d="M541.121,125.701c20.928,0,31.941,15.107,31.941,36.667c0,3.458-0.314,6.604-0.787,8.495h-49.09
+            c1.57,14.003,10.379,21.869,22.811,21.869c6.613,0,12.273-2.041,17.941-5.662l6.135,11.326c-7.395,4.878-16.676,8.341-26.432,8.341
+            c-21.404,0-38.08-14.95-38.08-40.439C505.561,141.12,523.023,125.701,541.121,125.701z M557.326,159.376
+            c0-12.277-5.189-19.671-15.732-19.671c-9.125,0-16.996,6.768-18.57,19.671H557.326z"/>
+</g>
+<path class="co-p-main-nav-brand-text-light" fill="#F1606D" d="M600.602,152.607c0-32.729,17.785-53.344,42.799-53.344c24.863,0,42.641,20.615,42.641,53.344
+          c0,32.889-17.777,54.13-42.641,54.13C618.387,206.737,600.602,185.496,600.602,152.607z M678.49,152.607
+          c0-28.639-14.158-46.731-35.09-46.731c-21.084,0-35.248,18.093-35.248,46.731c0,28.796,14.164,47.521,35.248,47.521
+          C664.332,200.128,678.49,181.403,678.49,152.607z"/>
+<path class="co-p-main-nav-brand-text-light" fill="#53A4D9" d="M699.738,186.125c7.557,8.495,18.412,14.003,30.529,14.003c15.732,0,25.807-8.499,25.807-20.767
+          c0-12.904-8.494-17.154-18.723-21.717l-15.736-7.082c-8.969-3.936-20.934-10.385-20.934-25.808
+          c0-14.947,12.904-25.492,30.059-25.492c12.588,0,22.658,5.665,28.949,12.435l-4.244,4.878c-5.982-6.452-14.32-10.7-24.705-10.7
+          c-13.691,0-22.816,7.239-22.816,18.565c0,11.962,10.385,16.521,17.936,19.985l15.738,6.921
+          c11.486,5.195,21.713,11.647,21.713,27.539s-13.061,27.851-33.201,27.851c-15.107,0-26.75-6.451-34.932-15.576L699.738,186.125z"/>
+<path class="co-p-main-nav-brand-crust" fill="#53A3DA" d="M136.168,45.527C76.898,45.527,28.689,93.739,28.689,153c0,59.265,48.209,107.474,107.479,107.474
+          c59.252,0,107.465-48.209,107.465-107.474C243.633,93.739,195.42,45.527,136.168,45.527z M176.542,180.428
+          c-0.889,0.129-1.767,0.254-2.659,0.368c-8.111,1.049-16.77,1.761-25.819,2.099c-3.895,0.145-7.872,0.233-11.895,0.233
+          c-4.035,0-8-0.087-11.907-0.233c-9.038-0.338-17.703-1.05-25.807-2.099c-0.723-6.047-1.213-12.339-1.458-18.811
+          c-0.117-2.956-0.175-5.956-0.175-8.985c0-3.032,0.058-6.026,0.175-8.988c0.245-6.473,0.735-12.761,1.458-18.808
+          c0.145-1.259,0.309-2.51,0.478-3.746c5.294-38.424,19.952-66.069,37.235-66.069c53.903,0,97.608,43.699,97.609,97.611
+          C233.777,165.196,210.296,175.688,176.542,180.428z"/>
+</svg>
+</a>
+<div class="co-m-main-nav-hint pull-right visible-xs">Menu</div>
+</div>
+<div class="navbar-collapse collapse coreos-nav-collapse">
+<ul class="nav navbar-nav navbar-left">
+<li class="dropdown co-m-dropdown co-m-main-nav-products co-p-main-nav-toplevel co-p-main-nav-toplevel">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" data-category="Main Navigation" data-event="Products: Open Dropdown">Products <span class="fa fa-angle-down"></span></a>
+<ul class="dropdown-menu co-m-dropdown-menu" role="menu">
+<li class="co-m-dropdown-menu-categories-category">
+<ul class="co-m-dropdown-menu-categories-sublinks co-m-main-nav-products-sublink">
+<li>
+<a href="/tectonic/" data-category="Product Dropdown" data-event="Tectonic">Tectonic - Kubernetes</a>
+</li>
+<li>
+<a href="/quay-enterprise" data-category="Product Dropdown" data-event="Products: Quay.io">Quay - Registry</a>
+</li>
+<li>
+<a href="/products/container-linux-subscription/" data-category="Product Dropdown" data-event="Products: Premium Managed Linux">Container Linux Support</a>
+</li>
+<li>
+<a href="/training/" data-category="Product Dropdown" data-event="Training: Kubernetes">Training</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="dropdown co-m-dropdown co-m-main-nav-products co-p-main-nav-toplevel co-p-main-nav-toplevel">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" data-category="Main Navigation" data-event="Products: Open Dropdown">Open Source <span class="fa fa-angle-down"></span></a>
+<ul class="dropdown-menu co-m-dropdown-menu" role="menu">
+<li class="co-m-dropdown-menu-categories-category">
+<ul class="co-m-dropdown-menu-categories-sublinks co-m-main-nav-products-sublink">
+<li>
+<a href="/docs" data-category="Open Source" data-event="docs">Open Source Docs</a>
+</li>
+<li>
+<a href="/kubernetes" data-category="Open Source" data-event="Kubernetes">Kubernetes</a>
+</li>
+<li>
+<a href="/operators" data-category="Open Source" data-event="Operators">Operators</a>
+</li>
+<li>
+<a href="/os/docs/latest" data-category="Open Source" data-event="CoreOS Linux">Container Linux</a>
+</li>
+<li>
+<a href="/rkt" data-category="Open Source" data-event="rkt">rkt</a>
+</li>
+<li>
+<a href="/etcd" data-category="Open Source" data-event="ectd">etcd</a>
+</li>
+<li>
+<a href="/clair" data-category="Open Source" data-event="Clair">Clair</a>
+</li>
+<li>
+<a href="/flannel" data-category="Open Source" data-event="flannel">flannel</a>
+</li>
+<li>
+<a href="/ignition" data-category="Open Source" data-event="Ignition">Ignition</a>
+</li>
+<li>
+<a href="/matchbox" data-category="Open Source" data-event="Matchbox">Matchbox</a>
+</li>
+<li>
+<a href="https://github.com/coreos/" data-category="Open Source" data-event="Github">90+ more on Github</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="dropdown co-m-dropdown co-m-main-nav-products co-p-main-nav-toplevel co-p-main-nav-toplevel">
+<a href="/resources" data-category="Main Navigation" data-event="Resources">Resources</a>
+</li>
+<li class="dropdown co-m-dropdown co-m-main-nav-products co-p-main-nav-toplevel co-p-main-nav-toplevel">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" data-category="Main Navigation" data-event="Products: Open Dropdown">Company <span class="fa fa-angle-down"></span></a>
+<ul class="dropdown-menu co-m-dropdown-menu" role="menu">
+<li class="co-m-dropdown-menu-categories-category">
+<ul class="co-m-dropdown-menu-categories-sublinks co-m-main-nav-products-sublink">
+<li>
+<a href="/about/" data-category="Company" data-event="About">About CoreOS</a>
+</li>
+<li>
+<a href="/blog" data-category="Company" data-event="Blog">CoreOS Blog</a>
+</li>
+<li>
+<a href="/community" data-category="Open Source" data-event="events">Events</a>
+</li>
+<li>
+<a href="/careers" data-category="Company" data-event="Careers">Careers</a>
+</li>
+<li>
+<a href="/press" data-category="Company" data-event="Press">Press</a>
+</li>
+<li>
+<a href="/contact" data-category="Company" data-event="Contact Us">Contact Us</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="navbar-right">
+<a class="login-link new-btn btn-small btn-red" data-category="Main Navigation" data-event="CoreOS Sign Up" href="/tectonic">Download Tectonic</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="container co-p-header-masthead-content co-p-header-masthead-left">
+<svg preserveAspectRatio="xMidYMin" height="50px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 492.95 65.54"><title>Artboard 1</title><path d="M23.55,43.73V8A27.76,27.76,0,1,0,58.85,43.73Z" fill="#fff"/><path d="M53.84,14H28.62V38.58H55.89V16A2.05,2.05,0,0,0,53.84,14Zm-18,18.6a1.42,1.42,0,1,1-2.84,0V19.78a1.42,1.42,0,0,1,2.84,0Zm8,0a1.42,1.42,0,1,1-2.84,0V19.78a1.42,1.42,0,0,1,2.84,0Zm8,0a1.42,1.42,0,1,1-2.84,0V19.78a1.42,1.42,0,0,1,2.84,0Z" fill="#fff"/><path d="M75.43,37.4a20.89,20.89,0,0,1,1.37-7.81,17.56,17.56,0,0,1,3.67-5.8,15.3,15.3,0,0,1,5.36-3.6A17.2,17.2,0,0,1,92.28,19a13,13,0,0,1,5.94,1.26,18.92,18.92,0,0,1,4.29,2.92l-3,3.82a16.54,16.54,0,0,0-3.28-2.23,8.19,8.19,0,0,0-3.78-.86,9.83,9.83,0,0,0-7.85,3.74,13.75,13.75,0,0,0-2.27,4.29,17.35,17.35,0,0,0-.83,5.51,17.7,17.7,0,0,0,.79,5.47,13.23,13.23,0,0,0,2.2,4.21A9.7,9.7,0,0,0,88,49.82a10.47,10.47,0,0,0,9-.07,16.45,16.45,0,0,0,3.64-2.48l2.67,3.89a19.25,19.25,0,0,1-5.29,3.31,15.61,15.61,0,0,1-6.09,1.22,17.15,17.15,0,0,1-6.48-1.22,14.55,14.55,0,0,1-5.22-3.57,16.72,16.72,0,0,1-3.46-5.76A22.27,22.27,0,0,1,75.43,37.4Z" fill="#fff"/><path d="M106,37.4a21.38,21.38,0,0,1,1.33-7.81,17.76,17.76,0,0,1,3.56-5.8,14.94,14.94,0,0,1,5.15-3.6,16.09,16.09,0,0,1,12.32,0,14.94,14.94,0,0,1,5.15,3.6,17.81,17.81,0,0,1,3.56,5.8,21.41,21.41,0,0,1,1.33,7.81,21.19,21.19,0,0,1-1.33,7.74,17.36,17.36,0,0,1-3.56,5.76,15.15,15.15,0,0,1-5.15,3.57,16.11,16.11,0,0,1-12.32,0,15.15,15.15,0,0,1-5.15-3.57,17.32,17.32,0,0,1-3.56-5.76A21.16,21.16,0,0,1,106,37.4Zm6.12,0a19.33,19.33,0,0,0,.72,5.47,13,13,0,0,0,2.05,4.21,9.4,9.4,0,0,0,3.2,2.74,9.15,9.15,0,0,0,8.21,0,9.43,9.43,0,0,0,3.2-2.74,13,13,0,0,0,2.05-4.21,19.38,19.38,0,0,0,.72-5.47,19.77,19.77,0,0,0-.72-5.51,13.41,13.41,0,0,0-2.05-4.29,9.32,9.32,0,0,0-3.2-2.77,9.16,9.16,0,0,0-8.21,0,9.29,9.29,0,0,0-3.2,2.77,13.41,13.41,0,0,0-2.05,4.29A19.72,19.72,0,0,0,112.1,37.4Z" fill="#fff"/><path d="M143.72,19.82h4.9l.5,5h.22a28.46,28.46,0,0,1,5.29-4.21A12.13,12.13,0,0,1,161.08,19q5.54,0,8.1,3.46t2.56,10.23V54.83h-5.91V33.43q0-5-1.58-7.17a5.79,5.79,0,0,0-5-2.2,8.61,8.61,0,0,0-4.83,1.37,31.25,31.25,0,0,0-4.75,4V54.83h-5.91Z" fill="#fff"/><path d="M181.25,24.65h-5.19V20.18l5.47-.36.72-9.79h5v9.79h9.44v4.83h-9.44V44.09a8.91,8.91,0,0,0,1.19,5q1.19,1.77,4.21,1.76a7.83,7.83,0,0,0,2-.29,15.1,15.1,0,0,0,1.94-.65l1.15,4.47a30.59,30.59,0,0,1-3.13.9,14.68,14.68,0,0,1-3.35.4,11.43,11.43,0,0,1-4.72-.86,8.11,8.11,0,0,1-3.1-2.38,9.24,9.24,0,0,1-1.69-3.67,20.91,20.91,0,0,1-.5-4.75Z" fill="#fff"/><path d="M200.71,45.75a9.71,9.71,0,0,1,5.15-8.82q5.15-3.06,16.39-4.29a16.14,16.14,0,0,0-.32-3.24,7.73,7.73,0,0,0-1.15-2.81,6.28,6.28,0,0,0-2.2-2,7.27,7.27,0,0,0-3.53-.76A14.11,14.11,0,0,0,209.31,25a28.31,28.31,0,0,0-4.72,2.59l-2.38-4.11a38.3,38.3,0,0,1,6-3.06A20,20,0,0,1,216,19q6.41,0,9.29,3.93t2.88,10.48V54.83h-4.9l-.5-4.18h-.14a29.07,29.07,0,0,1-5.44,3.57A13.47,13.47,0,0,1,211,55.69a10.7,10.7,0,0,1-7.38-2.59A9.32,9.32,0,0,1,200.71,45.75Zm5.83-.43q0,3,1.77,4.32a7.16,7.16,0,0,0,4.36,1.3,10.17,10.17,0,0,0,4.79-1.19,23.25,23.25,0,0,0,4.79-3.49V36.53a61.2,61.2,0,0,0-7.42,1.37A19.42,19.42,0,0,0,210,39.77a7,7,0,0,0-2.63,2.49A6.12,6.12,0,0,0,206.54,45.32Z" fill="#fff"/><path d="M239.84,12.62a4.17,4.17,0,0,1-2.92-1.08,3.53,3.53,0,0,1-1.19-2.74A3.51,3.51,0,0,1,236.92,6a4.6,4.6,0,0,1,5.83,0,3.51,3.51,0,0,1,1.19,2.77,3.53,3.53,0,0,1-1.19,2.74A4.17,4.17,0,0,1,239.84,12.62Zm-3,7.2h5.91v35h-5.91Z" fill="#fff"/><path d="M251.33,19.82h4.9l.5,5h.22a28.46,28.46,0,0,1,5.29-4.21A12.13,12.13,0,0,1,268.69,19q5.54,0,8.1,3.46t2.56,10.23V54.83h-5.91V33.43q0-5-1.58-7.17a5.79,5.79,0,0,0-5-2.2A8.61,8.61,0,0,0,262,25.44a31.25,31.25,0,0,0-4.75,4V54.83h-5.91Z" fill="#fff"/><path d="M284,37.4a21.17,21.17,0,0,1,1.33-7.74,18.12,18.12,0,0,1,3.53-5.8,15.3,15.3,0,0,1,5-3.64A14.09,14.09,0,0,1,299.67,19a14.68,14.68,0,0,1,5.94,1.15A11.59,11.59,0,0,1,310,23.42a15.19,15.19,0,0,1,2.7,5.19,22.88,22.88,0,0,1,.94,6.77,20.09,20.09,0,0,1-.22,3.24H289.81a13.91,13.91,0,0,0,3.49,9,10.74,10.74,0,0,0,8.17,3.31,13.75,13.75,0,0,0,4.65-.76,20.62,20.62,0,0,0,4.07-2l2.09,3.89a29.76,29.76,0,0,1-5.11,2.52,17.76,17.76,0,0,1-6.41,1.08,17.16,17.16,0,0,1-6.59-1.26,15.61,15.61,0,0,1-5.33-3.6,16.65,16.65,0,0,1-3.56-5.73A21.44,21.44,0,0,1,284,37.4Zm24.49-2.67q0-5.4-2.27-8.25a7.69,7.69,0,0,0-6.37-2.84,8.66,8.66,0,0,0-3.57.76,9.89,9.89,0,0,0-3.06,2.16A11.53,11.53,0,0,0,290.92,30a16,16,0,0,0-1.19,4.72Z" fill="#fff"/><path d="M320.85,19.82h4.9l.5,6.34h.22a16.14,16.14,0,0,1,4.36-5.26A9,9,0,0,1,336.4,19a9.31,9.31,0,0,1,3.74.72L339,24.86a13.65,13.65,0,0,0-1.58-.43,9.43,9.43,0,0,0-1.8-.14,7.85,7.85,0,0,0-4.65,1.8q-2.41,1.8-4.21,6.27V54.83h-5.91Z" fill="#fff"/><path d="M356.55,3.54h5.91V48.2a3.09,3.09,0,0,0,.5,2,1.5,1.5,0,0,0,1.15.58h.54a3,3,0,0,0,.76-.14l.79,4.47a5.17,5.17,0,0,1-1.37.43,11.66,11.66,0,0,1-2,.14q-3.39,0-4.83-2a10.11,10.11,0,0,1-1.44-5.91Z" fill="#fff"/><path d="M376.5,12.62a4.17,4.17,0,0,1-2.92-1.08,3.53,3.53,0,0,1-1.19-2.74A3.51,3.51,0,0,1,373.58,6a4.6,4.6,0,0,1,5.83,0A3.51,3.51,0,0,1,380.6,8.8a3.53,3.53,0,0,1-1.19,2.74A4.17,4.17,0,0,1,376.5,12.62Zm-3,7.2h5.91v35h-5.91Z" fill="#fff"/><path d="M388.36,19.82h4.9l.5,5H394a28.46,28.46,0,0,1,5.29-4.21A12.13,12.13,0,0,1,405.72,19q5.54,0,8.1,3.46t2.56,10.23V54.83h-5.91V33.43q0-5-1.58-7.17a5.79,5.79,0,0,0-5-2.2A8.61,8.61,0,0,0,399,25.44a31.25,31.25,0,0,0-4.75,4V54.83h-5.91Z" fill="#fff"/><path d="M424.5,19.82h6V41.21q0,5,1.55,7.17t5,2.2a8.45,8.45,0,0,0,4.83-1.4,22.68,22.68,0,0,0,4.61-4.5V19.82h5.91v35h-4.9l-.5-5.47h-.22A23.38,23.38,0,0,1,441.61,54a11.57,11.57,0,0,1-6.37,1.73q-5.62,0-8.18-3.46T424.5,42Z" fill="#fff"/><path d="M469.3,36.53,458.71,19.82h6.41l4.68,7.71q.79,1.44,1.66,2.92t1.8,2.92h.29q.79-1.44,1.58-2.92t1.59-2.92L481,19.82h6.19L476.57,37.18,488,54.83h-6.41l-5.11-8.14-1.87-3.17q-.94-1.58-1.95-3.1h-.29q-.94,1.51-1.8,3.06t-1.73,3.2L464,54.83h-6.19Z" fill="#fff"/></svg>
+<h2>A container-focused OS that's designed for painless management in large clusters</h2>
+<div class="co-p-masthead-nav">
+<div class="container">
+<ul class="row co-p-masthead-nav-tabs" id="tabs">
+<li class="col-lg-3 col-md-3 col-sm-4 col-xs-12 co-p-masthead-nav-tab ">
+<a href="/using-coreos/" class="btn-icon-left" data-category="CoreOS Masthead Tab" data-event="Using CoreOS: Overview">
+<span class="fa fa-info-circle"></span>
+Overview
+</a>
+</li>
+<li class="col-lg-3 col-md-3 col-sm-4 col-xs-12 co-p-masthead-nav-tab co-p-masthead-nav-tab-active">
+<a href="/os/docs/latest/" class="btn-icon-left" data-category="CoreOS Masthead Tab" data-event="CoreOS: Documentation">
+<span class="fa fa-book"></span>
+Documentation
+</a>
+</li>
+<li class="col-lg-3 col-md-3 col-sm-4 col-xs-12 co-p-masthead-nav-tab">
+<a href="/releases/" class="btn-icon-left" data-category="CoreOS Masthead Tab" data-event="Releases">
+<span class="fa fa-github"></span>
+Release Notes
+</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<meta name="robots" content="noindex">
+<div class="co-p-docs ">
+<div class="docs-page-wrapper">
+<div class="docs-inner-wrapper">
+<div class="hidden-sm hidden-xs co-m-docs-overview-nav">
+<div>
+<div class="version">
+<div class="btn-group co-m-button-styled-select">
+<button type="button" class="btn btn-default btn-icon-right btn-icon-left dropdown-toggle" data-toggle="dropdown">
+<span class="fa fa-tags"></span>
+<span>1520.1.0 (latest) </span>
+<span class="fa fa-caret-down"></span>
+</button>
+<ul class="dropdown-menu co-m-button-styled-select-dropdown co-m-button-styled-select-dropdown-left" role="menu">
+<li class="co-m-button-styled-select-dropdown-item co-m-button-styled-select-dropdown-selected">
+<a href="/os/docs/1520.1.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-check-circle"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1520.1.0 (latest)
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1520.0.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1520.0.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1506.0.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1506.0.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1492.6.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1492.6.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1492.5.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1492.5.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1492.4.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1492.4.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1492.3.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1492.3.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1465.7.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1465.7.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1465.6.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1465.6.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1465.5.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1465.5.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1465.4.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1465.4.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1465.3.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1465.3.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1409.9.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1409.9.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1409.8.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1409.8.0
+</span>
+</a>
+</li>
+<li class="co-m-button-styled-select-dropdown-item ">
+<a href="/os/docs/1409.7.0/index.html">
+<span class="co-m-button-styled-select-dropdown-item-icon fa fa-circle-o"></span>
+<span class="fa fa-tags"></span>
+<span class="co-m-button-styled-select-dropdown-item-name">
+1409.7.0
+</span>
+</a>
+</li>
+</ul>
+</div>
+</div>
+<hr>
+<div>
+<h2 class="section-header  " data-toggle="collapse" data-target="#official-platforms">Official Platforms</h2>
+</div>
+<div id="official-platforms" class="url-section  collapse  ">
+<div class="sub-group">
+<h3>Cloud Providers</h3>
+<ul class="doc-url-list">
+ <li><a href="/os/docs/1520.1.0/booting-on-azure.html">Microsoft Azure</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-digitalocean.html">DigitalOcean</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-ec2.html">EC2 | Booting Container Linux on EC2 | CoreOS</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-ecs.html">Amazon EC2 Container Service</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-google-compute-engine.html">Google Compute Engine</a></li>
+</ul>
+</div>
+<div class="sub-group">
+<h3>Bare Metal</h3>
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/booting-with-ipxe.html">iPXE | Booting CoreOS Container Linux via iPXE</a></li>
+<li><a href="/os/docs/1520.1.0/booting-with-pxe.html">PXE Boot | Booting CoreOS Container Linux via PXE</a></li>
+<li><a href="/os/docs/1520.1.0/installing-to-disk.html">Container Linux | Install Container Linux to Disk</a></li>
+</ul>
+</div>
+<div class="sub-group">
+<h3>Other Platforms</h3>
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/booting-on-openstack.html">OpenStack</a></li>
+<li><a href="/os/docs/1520.1.0/booting-with-iso.html">CoreOS Container Linux ISO | Booting Container Linux via ISO</a></li>
+</ul>
+</div>
+</div>
+<hr>
+<div>
+<h2 class="section-header   " data-toggle="collapse" data-target="#community-platforms">Community Platforms</h2>
+</div>
+<div id="community-platforms" class="url-section  collapse ">
+<div class="sub-group">
+<h3>Cloud Providers</h3>
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/booting-on-packet.html">Packet</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-auro.html">AURO Cloud</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-vexxhost.html">VEXXHOST Cloud</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-rackspace.html">Rackspace Cloud</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-niftycloud.html">NIFTY Cloud</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-exoscale.html">Exoscale</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-cloudca.html">Cloud.ca</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-launchtimevps.html">RimuHosting LaunchtimeVPS</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-vultr.html">Vultr VPS</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-brightbox.html">Brightbox Cloud</a></li>
+</ul>
+</div>
+<div class="sub-group">
+<h3>Other Platforms</h3>
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/booting-with-libvirt.html">Libvirt</a></li>
+<li><a href="/os/docs/1520.1.0/booting-with-qemu.html">QEMU</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-vagrant.html">Vagrant | Booting CoreOS Container Linux on Vagrant</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-cloudstack.html">CloudStack</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-vmware.html">VMware Containers | CoreOS Container Linux on VMware</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-eucalyptus.html">Eucalyptus</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-virtualbox.html">VirtualBox | Container Linux on Oracle VM VirtualBox | CoreOS</a></li>
+</ul>
+</div>
+</div>
+<hr>
+<div>
+<h2 class="section-header collapsed" data-toggle="collapse" data-target="#settingup-a-cluster">Setting up a cluster</h2>
+</div>
+<div id="settingup-a-cluster" class="url-section  collapse ">
+<div class="sub-group">
+<h3>Planning a cluster</h3>
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/update-strategies.html">CoreOS Container Linux Update Strategies</a></li>
+</ul>
+</div>
+<div class="sub-group">
+<h3>Setting up a cluster</h3>
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/clc-examples.html">Container Linux Config Examples</a></li>
+<li><a href="/os/docs/1520.1.0/migrating-to-clcs.html">Migrating to Container Linux Configs</a></li>
+<li><a href="/os/docs/1520.1.0/configuration.html">Container Linux Config Spec</a></li>
+<li><a href="/os/docs/1520.1.0/cluster-discovery.html">etcd Cluster | CoreOS Container Linux Cluster Discovery</a></li>
+<li><a href="/os/docs/1520.1.0/getting-started-with-systemd.html">systemd | Get Started with systemd | CoreOS</a></li>
+<li><a href="/os/docs/1520.1.0/mounting-storage.html">systemd Mount | Container Linux Mounting Storage | CoreOS</a></li>
+<li><a href="/os/docs/1520.1.0/network-config-with-networkd.html">Network Configuration | networkd in CoreOSContainer Linux</a></li>
+<li><a href="/os/docs/1520.1.0/overview-of-ct.html">Config Transpiler | Overview of ct | CoreOS</a></li>
+<li><a href="/os/docs/1520.1.0/adding-certificate-authorities.html">Adding Certificate Authorities</a></li>
+<li><a href="/os/docs/1520.1.0/using-systemd-drop-in-units.html">Using systemd Drop-In Units</a></li>
+</ul>
+</div>
+</div>
+<hr>
+<div>
+<h2 class="section-header " data-toggle="collapse" data-target="#managing-a-cluster">Managing a cluster</h2>
+</div>
+<div id="managing-a-cluster" class="url-section  in  ">
+<div class="sub-group">
+<h3>Debugging a cluster</h3>
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/reading-the-system-log.html">Reading the System Log</a></li>
+<li><a href="/os/docs/1520.1.0/btrfs-troubleshooting.html">Working with btrfs</a></li>
+<li><a href="/os/docs/1520.1.0/manual-rollbacks.html">Manual Container Linux Rollbacks</a></li>
+<li><a href="/os/docs/1520.1.0/install-debugging-tools.html">Install Debugging Tools</a></li>
+</ul>
+</div>
+<div class="sub-group">
+<h3>Scaling up a cluster</h3>
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/adding-disk-space.html">Adding Disk Space</a></li>
+<li><a href="/os/docs/1520.1.0/power-management.html">Power Management</a></li>
+</ul>
+</div>
+<div class="sub-group">
+<h3>Security</h3>
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/sssd.html">Configuring SSSD on Container Linux</a></li>
+<li><a href="/os/docs/1520.1.0/coreos-hardening-guide.html">Hardening a Container Linux Machine</a></li>
+<li class="active"><a href="/os/docs/1520.1.0/generate-self-signed-certificates.html">Generate Self Signed Certificates</a></li>
+<li><a href="/os/docs/1520.1.0/selinux.html">Using SELinux</a></li>
+<li><a href="/os/docs/1520.1.0/trusted-computing-hardware-requirements.html">Trusted Computing Hardware Requirements</a></li>
+</ul>
+</div>
+</div>
+<hr>
+<div>
+<h2 class="section-header collapsed" data-toggle="collapse" data-target="#developer-sdk">Developer SDK</h2>
+</div>
+<div id="developer-sdk" class="url-section  collapse ">
+<div class="sub-group">
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/sdk-modifying-coreos.html">Modifying Container Linux</a></li>
+<li><a href="/os/docs/1520.1.0/sdk-building-development-images.html">Building Development Images</a></li>
+<li><a href="/os/docs/1520.1.0/sdk-building-production-images.html">Building Production Images</a></li>
+<li><a href="/os/docs/1520.1.0/sdk-tips-and-tricks.html">SDK Tips and Tricks</a></li>
+<li><a href="/os/docs/1520.1.0/sdk-disk-partitions.html">Disk Layout</a></li>
+</ul>
+</div>
+</div>
+<hr>
+<div>
+<h2 class="section-header collapsed" data-toggle="collapse" data-target="#uncategorized">Uncategorized Documents</h2>
+</div>
+<div id="uncategorized" class="url-section  collapse ">
+<div class="sub-group">
+<ul class="doc-url-list">
+<li><a href="/os/docs/1520.1.0/iscsi.html">iscsi</a></li>
+<li><a href="/os/docs/1520.1.0/registry-authentication.html">registry authentication</a></li>
+<li><a href="/os/docs/1520.1.0/kernel-modules.html">kernel modules</a></li>
+<li><a href="/os/docs/1520.1.0/booting-on-ikoula.html">booting on ikoula</a></li>
+<li><a href="/os/docs/1520.1.0/integrations.html">integrations</a></li>
+<li><a href="/os/docs/1520.1.0/collecting-crash-logs.html">collecting crash logs</a></li>
+<li><a href="/os/docs/1520.1.0/adding-swap.html">adding swap</a></li>
+<li><a href="/os/docs/1520.1.0/production-users.html">production users</a></li>
+</ul>
+</div>
+</div>
+<hr>
+</div>
+</div>
+<div class="docs-main-section">
+<div class="coreos-docs">
+<div class="coreos-docs-back">
+<a href="/os/docs/1520.1.0" data-category="Docs Back Header" data-event="Docs: Overview">
+<a href="/os/docs/1520.1.0" data-category="Docs Back Header" data-event="Docs: Overview">
+</a>
+</div>
+<h1 id="generate-self-signed-certificates">Generate self-signed certificates</h1>
+<p>If you build Container Linux cluster on top of public networks it is recommended to enable encryption for Container Linux services to prevent traffic interception and man-in-the-middle attacks. For these purposes you have to use Certificate Authority (CA), private keys and certificates signed by CA. Let's use <a href="https://github.com/cloudflare/cfssl">cfssl</a> and walk through the whole process to create all these components.</p>
+<p><strong>NOTE:</strong> We will use basic procedure here. If your configuration requires advanced security options, please refer to official <a href="https://github.com/cloudflare/cfssl">cfssl</a> documentation.</p>
+<h2 id="download-cfssl">Download cfssl</h2>
+<p>CloudFlare's distributes <a href="https://github.com/cloudflare/cfssl">cfssl</a> source code on github page and binaries on <a href="https://pkg.cfssl.org">cfssl website</a>.</p>
+<p>Our documentation assumes that you will run <a href="https://github.com/cloudflare/cfssl">cfssl</a> on your local x86_64 Linux host.</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>mkdir ~/bin
+curl -s -L -o ~/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+curl -s -L -o ~/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+chmod +x ~/bin/<span class="o">{</span>cfssl,cfssljson<span class="o">}</span>
+<span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:~/bin
+</code></pre>
+</div>
+<h2 id="initialize-a-certificate-authority">Initialize a certificate authority</h2>
+<p>First of all we have to save default <code class="highlighter-rouge">cfssl</code> options for future substitutions:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>mkdir ~/cfssl
+cd ~/cfssl
+cfssl print-defaults config &gt; ca-config.json
+cfssl print-defaults csr &gt; ca-csr.json
+</code></pre>
+</div>
+<h3 id="certificate-types-which-are-used-inside-container-linux">Certificate types which are used inside Container Linux</h3>
+<ul>
+<li><strong>client certificate</strong> is used to authenticate client by server. For example <code class="highlighter-rouge">etcdctl</code>, <code class="highlighter-rouge">etcd proxy</code>, <code class="highlighter-rouge">fleetctl</code> or <code class="highlighter-rouge">docker</code> clients.</li>
+<li><strong>server certificate</strong> is used by server and verified by client for server identity. For example <code class="highlighter-rouge">docker</code> server or <code class="highlighter-rouge">kube-apiserver</code>.</li>
+<li><strong>peer certificate</strong> is used by etcd cluster members as they communicate with each other in both ways.</li>
+</ul>
+<h3 id="configure-ca-options">Configure CA options</h3>
+<p>Now we can configure signing options inside <code class="highlighter-rouge">ca-config.json</code> config file. Default options contain following preconfigured fields:</p>
+<ul>
+<li>profiles: <strong>www</strong> with <code class="highlighter-rouge">server auth</code> (TLS Web Server Authentication) X509 V3 extension and <strong>client</strong> with <code class="highlighter-rouge">client auth</code> (TLS Web Client Authentication) X509 V3 extension.</li>
+<li>expiry: with <code class="highlighter-rouge">8760h</code> default value (or 365 days)</li>
+</ul>
+<p>For compliance let's rename <strong>www</strong> profile into <strong>server</strong>, create additional <strong>peer</strong> profile with both <code class="highlighter-rouge">server auth</code> and <code class="highlighter-rouge">client auth</code> extensions, and set expiry to 43800h (5 years):</p>
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"signing"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"expiry"</span><span class="p">:</span><span class="w"> </span><span class="s2">"43800h"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"profiles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"server"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"expiry"</span><span class="p">:</span><span class="w"> </span><span class="s2">"43800h"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"usages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"signing"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"key encipherment"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"server auth"</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"client"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"expiry"</span><span class="p">:</span><span class="w"> </span><span class="s2">"43800h"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"usages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"signing"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"key encipherment"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"client auth"</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"peer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"expiry"</span><span class="p">:</span><span class="w"> </span><span class="s2">"43800h"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"usages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"signing"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"key encipherment"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"server auth"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"client auth"</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+<p>You can also modify <code class="highlighter-rouge">ca-csr.json</code> Certificate Signing Request (CSR):</p>
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"CN"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My own CA"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"key"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"algo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rsa"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"size"</span><span class="p">:</span><span class="w"> </span><span class="mi">2048</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"names"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"C"</span><span class="p">:</span><span class="w"> </span><span class="s2">"US"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"L"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CA"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"O"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My Company Name"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"ST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"San Francisco"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"OU"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Org Unit 1"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"OU"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Org Unit 2"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+<p>And generate CA with defined options:</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+</code></pre>
+</div>
+<p>You'll get following files:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>ca-key.pem
+ca.csr
+ca.pem
+</code></pre>
+</div>
+<ul>
+<li>Please keep <code class="highlighter-rouge">ca-key.pem</code> file in safe. This key allows to create any kind of certificates within your CA.</li>
+<li><strong>*.csr</strong> files are not used in our example.</li>
+</ul>
+<h3 id="generate-server-certificate">Generate server certificate</h3>
+<div class="highlighter-rouge"><pre class="highlight"><code>cfssl print-defaults csr &gt; server.json
+</code></pre>
+</div>
+<p>Most important values for server certificate are <strong>Common Name (CN)</strong> and <strong>hosts</strong>. We have to substitute them, for example:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>...
+    "CN": "coreos1",
+    "hosts": [
+        "192.168.122.68",
+        "ext.example.com",
+        "coreos1.local",
+        "coreos1"
+    ],
+...
+</code></pre>
+</div>
+<p>Now we are ready to generate server certificate and private key:</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>cfssl gencert -ca<span class="o">=</span>ca.pem -ca-key<span class="o">=</span>ca-key.pem -config<span class="o">=</span>ca-config.json -profile<span class="o">=</span>server server.json | cfssljson -bare server
+</code></pre>
+</div>
+<p>Or without CSR json file:</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="nb">echo</span> <span class="s1">'{"CN":"coreos1","hosts":[""],"key":{"algo":"rsa","size":2048}}'</span> | cfssl gencert -ca<span class="o">=</span>ca.pem -ca-key<span class="o">=</span>ca-key.pem -config<span class="o">=</span>ca-config.json -profile<span class="o">=</span>server -hostname<span class="o">=</span><span class="s2">"192.168.122.68,ext.example.com,coreos1.local,coreos1"</span> - | cfssljson -bare server
+</code></pre>
+</div>
+<p>You'll get following files:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>server-key.pem
+server.csr
+server.pem
+</code></pre>
+</div>
+<h3 id="generate-peer-certificate">Generate peer certificate</h3>
+<div class="highlighter-rouge"><pre class="highlight"><code>cfssl print-defaults csr &gt; member1.json
+</code></pre>
+</div>
+<p>Substitute CN and hosts values, for example:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>...
+    "CN": "member1",
+    "hosts": [
+        "192.168.122.101",
+        "ext.example.com",
+        "member1.local",
+        "member1"
+    ],
+...
+</code></pre>
+</div>
+<p>Now we are ready to generate member1 certificate and private key:</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>cfssl gencert -ca<span class="o">=</span>ca.pem -ca-key<span class="o">=</span>ca-key.pem -config<span class="o">=</span>ca-config.json -profile<span class="o">=</span>peer member1.json | cfssljson -bare member1
+</code></pre>
+</div>
+<p>Or without CSR json file:</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="nb">echo</span> <span class="s1">'{"CN":"member1","hosts":[""],"key":{"algo":"rsa","size":2048}}'</span> | cfssl gencert -ca<span class="o">=</span>ca.pem -ca-key<span class="o">=</span>ca-key.pem -config<span class="o">=</span>ca-config.json -profile<span class="o">=</span>peer -hostname<span class="o">=</span><span class="s2">"192.168.122.101,ext.example.com,member1.local,member1"</span> - | cfssljson -bare member1
+</code></pre>
+</div>
+<p>You'll get following files:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>member1-key.pem
+member1.csr
+member1.pem
+</code></pre>
+</div>
+<p>Repeat these steps for each <code class="highlighter-rouge">etcd</code> member hostname.</p>
+<h3 id="generate-client-certificate">Generate client certificate</h3>
+<div class="highlighter-rouge"><pre class="highlight"><code>cfssl print-defaults csr &gt; client.json
+</code></pre>
+</div>
+<p>For client certificate we can ignore <strong>hosts</strong> values and set only <strong>Common Name (CN)</strong> to <strong>client</strong> value:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>...
+    "CN": "client",
+    "hosts": [""],
+...
+</code></pre>
+</div>
+<p>Generate client certificate:</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>cfssl gencert -ca<span class="o">=</span>ca.pem -ca-key<span class="o">=</span>ca-key.pem -config<span class="o">=</span>ca-config.json -profile<span class="o">=</span>client client.json | cfssljson -bare client
+</code></pre>
+</div>
+<p>Or without CSR json file:</p>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="nb">echo</span> <span class="s1">'{"CN":"client","hosts":[""],"key":{"algo":"rsa","size":2048}}'</span> | cfssl gencert -ca<span class="o">=</span>ca.pem -ca-key<span class="o">=</span>ca-key.pem -config<span class="o">=</span>ca-config.json -profile<span class="o">=</span>client - | cfssljson -bare client
+</code></pre>
+</div>
+<p>You'll get following files:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>client-key.pem
+client.csr
+client.pem
+</code></pre>
+</div>
+<h2 id="tldr">TLDR</h2>
+<h3 id="download-binaries">Download binaries</h3>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>mkdir ~/bin
+curl -s -L -o ~/bin/cfssl https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
+curl -s -L -o ~/bin/cfssljson https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+chmod +x ~/bin/<span class="o">{</span>cfssl,cfssljson<span class="o">}</span>
+<span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:~/bin
+</code></pre>
+</div>
+<h3 id="create-directory-to-store-certificates">Create directory to store certificates:</h3>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>mkdir ~/cfssl
+<span class="nb">cd</span> ~/cfssl
+</code></pre>
+</div>
+<h3 id="generate-ca-and-certificates">Generate CA and certificates</h3>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code><span class="nb">echo</span> <span class="s1">'{"CN":"CA","key":{"algo":"rsa","size":2048}}'</span> | cfssl gencert -initca - | cfssljson -bare ca -
+<span class="nb">echo</span> <span class="s1">'{"signing":{"default":{"expiry":"43800h","usages":["signing","key encipherment","server auth","client auth"]}}}'</span> &gt; ca-config.json
+<span class="nb">export </span><span class="nv">ADDRESS</span><span class="o">=</span>192.168.122.68,ext1.example.com,coreos1.local,coreos1
+<span class="nb">export </span><span class="nv">NAME</span><span class="o">=</span>server
+<span class="nb">echo</span> <span class="s1">'{"CN":"'</span><span class="nv">$NAME</span><span class="s1">'","hosts":[""],"key":{"algo":"rsa","size":2048}}'</span> | cfssl gencert -config<span class="o">=</span>ca-config.json -ca<span class="o">=</span>ca.pem -ca-key<span class="o">=</span>ca-key.pem -hostname<span class="o">=</span><span class="s2">"</span><span class="nv">$ADDRESS</span><span class="s2">"</span> - | cfssljson -bare <span class="nv">$NAME</span>
+<span class="nb">export </span><span class="nv">ADDRESS</span><span class="o">=</span>
+<span class="nb">export </span><span class="nv">NAME</span><span class="o">=</span>client
+<span class="nb">echo</span> <span class="s1">'{"CN":"'</span><span class="nv">$NAME</span><span class="s1">'","hosts":[""],"key":{"algo":"rsa","size":2048}}'</span> | cfssl gencert -config<span class="o">=</span>ca-config.json -ca<span class="o">=</span>ca.pem -ca-key<span class="o">=</span>ca-key.pem -hostname<span class="o">=</span><span class="s2">"</span><span class="nv">$ADDRESS</span><span class="s2">"</span> - | cfssljson -bare <span class="nv">$NAME</span>
+</code></pre>
+</div>
+<h3 id="verify-data">Verify data</h3>
+<div class="language-sh highlighter-rouge"><pre class="highlight"><code>openssl x509 -in ca.pem -text -noout
+openssl x509 -in server.pem -text -noout
+openssl x509 -in client.pem -text -noout
+</code></pre>
+</div>
+<h3 id="things-to-know">Things to know</h3>
+<ul>
+<li>Don't put your <code class="highlighter-rouge">ca-key.pem</code> into a Container Linux Config, it is recommended to store it in safe place. This key allows to generate as much certificates as possible.</li>
+<li>Keep <strong>key</strong> files in safe. Don't forget to set proper file permissions, i.e. <code class="highlighter-rouge">chmod 0600 server-key.pem</code>.</li>
+<li>Certificates in this <strong>TLDR</strong> example have both <code class="highlighter-rouge">server auth</code> and <code class="highlighter-rouge">client auth</code> X509 V3 extensions and you can use them with servers and clients' authentication.</li>
+<li>You are free to generate keys and certificates for wildcard <code class="highlighter-rouge">*</code> address as well. They will work on any machine. It will simplify certificates routine but increase security risks.</li>
+</ul>
+<h2 id="more-information">More information</h2>
+<p>For another examples, check out these documents:</p>
+<p><a href="adding-certificate-authorities.html">Custom Certificate Authorities</a>
+<a href="/etcd/docs/latest/op-guide/security.html">etcd Security Model</a></p>
+</div>
+</div>
+<div class="coreos-docs-sidebar col-lg-3 hidden-md hidden-sm hidden-xs">
+<div class="coreos-docs-sidenav">
+<h4>Page Contents</h4>
+<div class="js-toc"></div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+<div class="co-m-footer footer-dark">
+<div class="container">
+<div class="row co-m-footer-top">
+<h2 class="footer-title">Install Kubernetes in less than 15 minutes.</h2>
+<div class="footer-cta">
+<a class="new-btn btn-red" href="/tectonic" data-category="Footer" data-event="Tectonic: Sign Up">Sign up for free</a>
+<a class="new-btn btn-clear" href="/tectonic/docs" data-category="Footer" data-event="Tectonic: Documentation">Read the docs</a>
+</div>
+</div>
+<div class="row">
+<div class="col-lg-12 col-md-12 col-sm-12 col-sx-12">
+<hr>
+<div class="co-m-footer-group">
+<h4>Company</h4>
+<ul>
+<li><a href="/about/" data-category="Footer" data-event="Footer: About">About</a></li>
+<li><a href="/blog/" data-category="Footer" data-event="Blog: Post List">Blog</a></li>
+<li><a href="/press/" data-category="Footer" data-event="Press">Press</a></li>
+<li><a href="/careers/" data-category="Footer" data-event="Careers">Careers</a></li>
+<li><a href="/security/" data-category="Footer" data-event="Footer: Security">Security</a></li>
+<li><a href="/legal/privacy/" data-category="Footer" data-event="Footer: Privacy Policy">Privacy Policy</a></li>
+</ul>
+</div>
+<div class="co-m-footer-group">
+<h4>Products</h4>
+<ul>
+<li><a href="/tectonic/" data-category="Footer" data-event="Tectonic: Enterprise">Tectonic Enterprise</a></li>
+<li><a href="/products/container-linux-subscription/" data-category="Footer" data-event="Products: Managed Linux">Premium Managed Linux</a></li>
+<li><a href="https://tectonic.com/quay-enterprise/" data-category="Footer" data-event="Products: Quay Enterprise">Quay Enterprise</a></li>
+<li><a href="/training/" data-category="Footer" data-event="Training: Overview">Training Classes</a></li>
+<li><a href="/products/coreupdate/" data-category="Footer" data-event="Products: CoreUpdate">CoreUpdate</a></li>
+</ul>
+</div>
+<div class="co-m-footer-group">
+<h4>Contact &amp; Support</h4>
+<ul>
+<li><a href="/contact" data-category="Footer" data-event="Footer: Contact Us">Contact Us</a></li>
+<li><a href="/support" data-category="Footer" data-event="Footer: Support">Support</a></li>
+<li><a href="https://groups.google.com/forum/#!forum/coreos-user" data-category="Footer" data-event="Footer: User Newsletter">General Mailing List</a></li>
+<li><a href="https://groups.google.com/forum/#!forum/coreos-dev" data-category="Footer" data-event="Footer: Dev Newsletter">Developer Mailing List</a></li>
+<li><a href="irc://irc.freenode.org:6667/#coreos" data-category="Footer" data-event="Footer: IRC">IRC #coreos</a></li>
+<li><a href="https://twitter.com/coreos/" data-category="Footer" data-event="Footer: Twitter">@CoreOS</a></li>
+</ul>
+</div>
+<div class="co-m-footer-group">
+<h4>Project Docs</h4>
+<ul>
+<li><a href="/os/docs/latest/" data-category="Footer" data-event="CoreOS: Docs">Container Linux</a></li>
+<li><a href="/etcd/docs/latest/" data-category="Footer" data-event="etcd: Docs">etcd</a></li>
+<li><a href="/rkt/docs/latest/" data-category="Footer" data-event="rkt: Docs">rkt</a></li>
+<li><a href="/flannel/docs/latest/" data-category="Footer" data-event="flannel: Docs">flannel</a></li>
+</ul>
+</div>
+<div class="co-m-footer-group hidden-sm">
+<h4>Events</h4>
+<ul>
+<li><a href="/community/" data-category="Footer" data-event="Footer: Community">Community &amp; Meetups</a></li>
+<li><a href="/fest/" data-category="Footer" data-event="Fest: Overview">CoreOS Fest 2017</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+<script src="/assets/js/jquery.js"></script>
+<script src="/dist/js/bootstrap.min.js"></script>
+<script src="/assets/js/holder.js"></script>
+<script src="/assets/js/application.js"></script>
+
+<script src="/assets/js/jquery-ui-1.11.4.custom.js"></script>
+<script src="/assets/js/tocbot.min.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('[data-toggle=tooltip]').tooltip();
+  });
+</script>
+<script src="/assets/js/docs.js"></script>
+
+<script>
+  (function() {
+    var cx = '006443145124420588374:-hswgjadnry';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') +
+        '//www.google.com/cse/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<script type="text/javascript">
+  $('.search-icon').on('click', function() {
+    $('#search-box').toggleClass('expanded-search');
+    if ($('#search-box').hasClass('expanded-search')) {
+      $('#search-box').focus();
+    } else {
+      $('#search-box').blur();
+    }
+    $(this).toggleClass('expand');
+  });
+  $('#search-box').on('blur', function() {
+    $(this).toggleClass('expaned-search');
+  });
+</script>
+
+<script type="text/javascript" src="/assets/js/events.js"></script>
+</body>
+</html>
