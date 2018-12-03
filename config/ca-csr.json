@@ -1,16 +1,7 @@
 {
-    "CN": "box-box.space",
+    "CN": "etcd",
     "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "TH",
-            "L": "Pathumthani",
-            "O": "box-box group",
-            "ST": "Kloungluang",
-            "OU": "Main Unit"
-        }
-    ]
+       "algo": "rsa",
+       "size": 2048
+    }
 }
