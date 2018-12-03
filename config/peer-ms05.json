@@ -1,0 +1,21 @@
+{
+    "CN": "ms05.mecas.local",
+    "hosts": [
+        "ms05.mecas.local",
+        "10.32.15.5",
+        "10.0.0.5",
+        "etcd.mecas.local",
+        "etcd.mecas.svc.cluster.local"
+    ],
+    "key": {
+        "algo": "ecdsa",
+        "size": 256
+    },
+    "names": [
+        {
+            "C": "TH",
+            "L": "Phathum thani",
+            "ST": "Klongluang"
+        }
+    ]
+}
