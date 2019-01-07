@@ -22,52 +22,53 @@ req:
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=server config/peer-ms01.json | cfssljson -bare certs/s-ms01
+          -profile=server config/peer-ms01.json | $(JSON) -bare certs/s-ms01
 	$(CFSSL) gencert \
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=peer config/peer-ms01.json | cfssljson -bare certs/p-ms01
+          -profile=peer config/peer-ms01.json | $(JSON) -bare certs/p-ms01
 	$(CFSSL) gencert \
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=server config/peer-ms02.json | cfssljson -bare certs/s-ms02
+          -profile=server config/peer-ms02.json | $(JSON) -bare certs/s-ms02
 	$(CFSSL) gencert \
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=peer config/peer-ms02.json | cfssljson -bare certs/p-ms02
-	$(CFSSL) gencert \
+          -profile=peer config/peer-ms02.json | $(JSON) -bare certs/p-ms02
+        $(CFSSL) gencert \
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=server config/peer-ms03.json | cfssljson -bare certs/s-ms03
-	$(CFSSL) gencert \
+          -profile=server config/peer-ms03.json | $(JSON) -bare certs/s-ms03
+        $(CFSSL) gencert \
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=peer config/peer-ms03.json | cfssljson -bare certs/p-ms03
-	$(CFSSL) gencert \
+          -profile=peer config/peer-ms03.json | $(JSON) -bare certs/p-ms03
+        $(CFSSL) gencert \
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=server config/peer-ms04.json | cfssljson -bare certs/s-ms04
-	$(CFSSL) gencert \
+          -profile=server config/peer-ms04.json | $(JSON) -bare certs/s-ms04
+        $(CFSSL) gencert \
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=peer config/peer-ms04.json | cfssljson -bare certs/p-ms04
-	$(CFSSL) gencert \
+          -profile=peer config/peer-ms04.json | $(JSON) -bare certs/p-ms04
+        $(CFSSL) gencert \
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=server config/peer-ms05.json | cfssljson -bare certs/s-ms05
-	$(CFSSL) gencert \
+          -profile=server config/peer-ms05.json | $(JSON) -bare certs/s-ms05
+        $(CFSSL) gencert \
           -ca=certs/ca.pem \
           -ca-key=certs/ca-key.pem \
           -config=config/ca-config.json \
-          -profile=peer config/peer-ms05.json | cfssljson -bare certs/p-ms05
+          -profile=peer config/peer-ms05.json | $(JSON) -bare certs/p-ms05
+
 
 clean:
 	rm -rf certs
